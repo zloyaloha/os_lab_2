@@ -60,6 +60,7 @@ std::mutex mutex;
 
 void QuickSort::mergeArrays(std::vector<int> &arr, int left, int mid, int right) { 
     int i = 0, j = 0;
+    // std::cout << 'i' << '\n';
     std::vector <int> res;
     while (left + i < mid && mid + j < right) { 
         if (arr[i + left] < arr[mid + j]) {
@@ -86,6 +87,7 @@ void QuickSort::mergeArrays(std::vector<int> &arr, int left, int mid, int right)
     for (int it = 0; it < i + j; it++) {
         arr[left + it] = res[it];
     }
+    // std::cout << res;
 }
 
 
@@ -99,10 +101,14 @@ void QuickSort::ParallelQuickSort(std::vector<int> &arr, int l, int r, int num) 
     }
     for (auto & th : thsS) th.join();
     while (ranges.size() > 1) {
-        mergeArrays(arr, ranges[0].first, ranges[1].first, ranges[1].second + 1);
-        ranges.push_back(std::pair<int,int> {ranges[0].first, ranges[1].second});
-        ranges.erase(ranges.begin());
-        ranges.erase(ranges.begin());
+        int n = ranges.size();
+        for (int i = 0; i < n; i += 2) {
+            thsM.push_back(std::thread(mergeArrays, std::ref(arr), ranges[i].first, ranges[i+1].first, ranges[i+1].second + 1));
+            ranges.push_back(std::pair<int,int> {ranges[i].first, ranges[i+1].second});
+        }
+        for (auto & th1 : thsM) th1.join();
+        thsM.clear();
+        ranges.erase(ranges.begin(), ranges.begin() + n);
     }
 }
 void QuickSort::QuickSortStack(std::vector<int> &arr, int l, int r) {
