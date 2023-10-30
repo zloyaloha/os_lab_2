@@ -1,34 +1,32 @@
 #pragma once
 #include <stack>
-#include <algorithm>
 #include <stdio.h>
 #include <vector>
 #include <ostream>
 #include <iostream>
-#include <queue>
 #include <fstream>
-#include <ctime>
-#include <iomanip>
 #include <thread>
 #include <cmath>
-#include <mutex>
-#include <atomic>
-#include <condition_variable>
+#include <chrono>
 #define MAX_LEVEL 1000
 
 class QuickSort {
     public:
-        static void print(const std::vector<int> &a, int l, int r) ;
-        static bool compare(const std::vector<int> &a, const std::vector<int> &b);
-        static void swap(int &a, int&b);
-        static std::pair<int,int> Partition(std::vector<int> &arr, const int &left, const int &right);
-        static void QuickSortStack(std::vector<int> &arr, int l, int r);
-        static void QuickSortRecursive(std::vector<int> &arr, int l, int r);
-        static void ThreadFunc(std::vector<int> &arr, int num, std::vector<std::pair<int,int>> &borders);
-        static void mergeArrays(std::vector<int> &arr, int l1, int mid, int r2);
-        static void ParallelQuickSortRecursive(std::vector<int> &arr, int l, int r, int level);
-        static void ParallelQuickSort(std::vector<int> &arr, int l, int r, int num);
+        friend std::ostream &operator << (std::ostream &os, const QuickSort &arr);
+        int size();
+        QuickSort(std::ifstream &file);
+        QuickSort(const std::vector<int> &v);
+        QuickSort(QuickSort &other);
+        QuickSort(const std::initializer_list<int> &list);
+        void print(int l, int r);
+        bool operator == (const QuickSort &other) const;
+        std::pair<int,int> Partition(const int &left, const int &right);
+        void QuickSortStack(int l, int r);
+        void QuickSortRecursive(int l, int r);
+        void ParallelQuickSortRecursive(int l, int r, int level);
+        void ParallelQuickSort(int l, int r, int num);
     private:
+        void mergeArrays(int l1, int mid, int r2);
+        void swap(int &a, int&b);
         std::vector<int> _array;
 };
-std::ostream &operator << (std::ostream &os, const std::vector<int> a);
