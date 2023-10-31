@@ -8,7 +8,6 @@
 #include <thread>
 #include <cmath>
 #include <chrono>
-#define MAX_LEVEL 1000
 
 class QuickSort {
     public:
@@ -20,6 +19,7 @@ class QuickSort {
         QuickSort(const std::initializer_list<int> &list);
         void print(int l, int r);
         bool operator == (const QuickSort &other) const;
+        QuickSort& operator = (const QuickSort &other);
         std::pair<int,int> Partition(const int &left, const int &right);
         void QuickSortStack(int l, int r);
         void QuickSortRecursive(int l, int r);

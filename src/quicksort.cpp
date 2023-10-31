@@ -43,13 +43,14 @@ bool QuickSort::operator==(const QuickSort &other) const{
         }
     }
     return true;
-}
+} 
 
-void QuickSort::print(int l, int r) {
-    for (size_t i = l; i < r; ++i) {
-        std::cout << _array << ' ';
+QuickSort &QuickSort::operator=(const QuickSort &other) {
+    _array.clear();
+    for (int i = 0; i < other._array.size(); i++){
+        _array.push_back(other._array[i]);
     }
-    std::cout << '\n';
+    return *this;
 } 
 
 void QuickSort::swap(int &a, int&b) {
@@ -93,18 +94,22 @@ void QuickSort::mergeArrays(int left, int mid, int right) {
         if (_array[i + left] < _array[mid + j]) {
             res.push_back(_array[left + i]);
             i++;
+            // std::cout <<res;
         } else {
             res.push_back(_array[mid + j]);
             j++;
+            // std::cout <<res;
         }
     }
     while (i + left < mid) {
         res.push_back(_array[left + i]);
         i++;
+        // std::cout <<res;
     }
     while (mid + j < right) {
         res.push_back(_array[mid + j]);
         j++;
+        // std::cout <<res;
     }
 
     for (int it = 0; it < i + j; it++) {
@@ -112,26 +117,43 @@ void QuickSort::mergeArrays(int left, int mid, int right) {
     }
 }
 
+void QuickSort::print(int l, int r) {
+    for (size_t i = l; i < r; ++i) {
+        std::cout << _array[i] << ' ';
+    }
+    std::cout << '\n';
+}
 
 void QuickSort::ParallelQuickSort(int l, int r, int num) {
     std::vector<std::thread> thsS;
     std::vector<std::thread> thsM;
     std::vector<std::pair<int, int>>ranges;
     for (int i = 0; i < num; ++i) {
-        ranges.push_back(std::pair<int, int> {int(i * ceil(_array.size() / num)), int((i + 1) * ceil(_array.size() / num) - 1)});
-        thsS.push_back(std::thread(&QuickSort::QuickSortRecursive, this, int(i * ceil(_array.size() / num)), int((i + 1) * ceil(_array.size() / num) - 1)));
+        ranges.push_back(std::pair<int, int> {int(i * ceil(_array.size() / num)), int((i + 1) * ceil(_array.size() / num))});
+    }
+    while (_array.size() - 1 != ranges[ranges.size() - 1].second) {
+        ranges[ranges.size() - 1].second += 1;
+    }
+    for (int i = 0; i < num; ++i) {
+        thsS.push_back(std::thread(&QuickSort::QuickSortRecursive, this, ranges[i].first, ranges[i].second));
     }
     for (auto & th : thsS) th.join();
-    // while (ranges.size() > 1) {
-    //     int n = ranges.size();
-    //     for (int i = 0; i < n; i += 2) {
-    //         thsM.push_back(std::thread(&QuickSort::mergeArrays, this, ranges[i].first, ranges[i+1].first, ranges[i+1].second + 1));
-    //         ranges.push_back(std::pair<int,int> {ranges[i].first, ranges[i+1].second});
-    //     }
-    //     for (auto & th1 : thsM) th1.join();
-    //     thsM.clear();
-    //     ranges.erase(ranges.begin(), ranges.begin() + n);
-    // }
+    while (ranges.size() > 1) {
+        int n = ranges.size();
+        if (n % 2 == 1) {
+            mergeArrays(ranges[0].first, ranges[1].first, ranges[1].second);
+            ranges.insert(ranges.begin(), std::pair<int,int> {ranges[0].first, ranges[1].second});
+            ranges.erase(ranges.cbegin() + 1, ranges.cbegin() + 3);
+            n -= 1;
+        }
+        for (int i = 0; i < n - 1; i += 2) {
+            thsM.push_back(std::thread(&QuickSort::mergeArrays, this, ranges[i].first, ranges[i+1].first, ranges[i+1].second));
+            ranges.push_back(std::pair<int,int> {ranges[i].first, ranges[i+1].second});
+        }
+        for (auto & th1 : thsM) th1.join();
+        thsM.clear();
+        ranges.erase(ranges.begin(), ranges.begin() + n);
+    }
 }
 void QuickSort::QuickSortStack(int l, int r) {
     std::stack<std::pair<int, int>> s;
